@@ -16,27 +16,27 @@ dir_model = str(Path(os.getcwd()).parent)
 NUM_PATIENTS=15
 
 def create_folder_datasets():
-    
-    dir_folder_datasets = dir_model+"/CT_2D_unet_dataset"
-    dir_folder_index = dir_folder_datasets + "/index"
-    dir_folder_test = dir_folder_datasets + "/test"
-    dir_folder_total = dir_folder_datasets + "/total"
-    dir_folder_train = dir_folder_datasets + "/train"
-    dir_folder_val = dir_folder_datasets + "/val"
-    dir_folder_test_result = dir_folder_datasets + "/test_result"
-    dir_folder_test_result_numpy = dir_folder_datasets + "/test_result/numpy"
-    dir_folder_test_result_png = dir_folder_datasets + "/test_result/png"
-    
-    os.mkdir(dir_folder_datasets)
-    os.mkdir(dir_folder_index)
-    os.mkdir(dir_folder_test)
-    os.mkdir(dir_folder_total)
-    os.mkdir(dir_folder_train)
-    os.mkdir(dir_folder_val)
-    os.mkdir(dir_folder_test_result)
-    os.mkdir(dir_folder_test_result_numpy)
-    os.mkdir(dir_folder_test_result_png)
-
+    if os.path.isdir(dir_model+"/CT_2D_unet_dataset"):
+        pass
+    else:
+        dir_folder_datasets = dir_model+"/CT_2D_unet_dataset"
+        dir_folder_index = dir_folder_datasets + "/index"
+        dir_folder_test = dir_folder_datasets + "/test"
+        dir_folder_total = dir_folder_datasets + "/total"
+        dir_folder_train = dir_folder_datasets + "/train"
+        dir_folder_val = dir_folder_datasets + "/val"
+        dir_folder_test_result = dir_folder_datasets + "/test_result"
+        dir_folder_test_result_numpy = dir_folder_datasets + "/test_result/numpy"
+        dir_folder_test_result_png = dir_folder_datasets + "/test_result/png"
+        os.mkdir(dir_folder_datasets)
+        os.mkdir(dir_folder_index)
+        os.mkdir(dir_folder_test)
+        os.mkdir(dir_folder_total)
+        os.mkdir(dir_folder_train)
+        os.mkdir(dir_folder_val)
+        os.mkdir(dir_folder_test_result)
+        os.mkdir(dir_folder_test_result_numpy)
+        os.mkdir(dir_folder_test_result_png)
 
 def png_to_numpy(path):
     img_size=512

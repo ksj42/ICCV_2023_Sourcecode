@@ -16,24 +16,27 @@ dir_model = str(Path(os.getcwd()).parent)
 NUM_PATIENTS=15
 
 def create_folder_datasets():
-    dir_folder_datasets = dir_model+"/CT_2D_unet_dataset"
-    dir_folder_index = dir_folder_datasets + "/index"
-    dir_folder_test = dir_folder_datasets + "/test"
-    dir_folder_total = dir_folder_datasets + "/total"
-    dir_folder_train = dir_folder_datasets + "/train"
-    dir_folder_val = dir_folder_datasets + "/val"
-    dir_folder_test_result = dir_folder_datasets + "/test_result"
-    dir_folder_test_result_numpy = dir_folder_datasets + "/test_result/numpy"
-    dir_folder_test_result_png = dir_folder_datasets + "/test_result/png"
-    os.mkdir(dir_folder_datasets)
-    os.mkdir(dir_folder_index)
-    os.mkdir(dir_folder_test)
-    os.mkdir(dir_folder_total)
-    os.mkdir(dir_folder_train)
-    os.mkdir(dir_folder_val)
-    os.mkdir(dir_folder_test_result)
-    os.mkdir(dir_folder_test_result_numpy)
-    os.mkdir(dir_folder_test_result_png)
+    if os.path.isdir(dir_model+"/CT_3D_unet_dataset"):
+        pass
+    else:
+        dir_folder_datasets = dir_model+"/CT_3D_unet_dataset"
+        dir_folder_index = dir_folder_datasets + "/index"
+        dir_folder_test = dir_folder_datasets + "/test"
+        dir_folder_total = dir_folder_datasets + "/total"
+        dir_folder_train = dir_folder_datasets + "/train"
+        dir_folder_val = dir_folder_datasets + "/val"
+        dir_folder_test_result = dir_folder_datasets + "/test_result"
+        dir_folder_test_result_numpy = dir_folder_datasets + "/test_result/numpy"
+        dir_folder_test_result_png = dir_folder_datasets + "/test_result/png"
+        os.mkdir(dir_folder_datasets)
+        os.mkdir(dir_folder_index)
+        os.mkdir(dir_folder_test)
+        os.mkdir(dir_folder_total)
+        os.mkdir(dir_folder_train)
+        os.mkdir(dir_folder_val)
+        os.mkdir(dir_folder_test_result)
+        os.mkdir(dir_folder_test_result_numpy)
+        os.mkdir(dir_folder_test_result_png)
 
 def png_to_numpy(path):
     img_size=512
@@ -159,8 +162,6 @@ def additional_process_3d(x_train, y_train, x_val, y_val, x_test, y_test):
     x_test, y_test = delete_no_image(x_test, y_test, mode='test')
     return True
 
-##
-## 네트워크 저장하기
 def save(ckpt_dir, net, optim, epoch):
     if not os.path.exists(ckpt_dir):
         os.makedirs(ckpt_dir)
@@ -190,15 +191,11 @@ class Dataset(torch.utils.data.Dataset):
     def __init__(self, data_dir, transform=None):
         self.data_dir = data_dir
         self.transform = transform
-
         lst_data = os.listdir(self.data_dir)
-
         lst_label = [f for f in lst_data if f.startswith('label')]
         lst_input = [f for f in lst_data if f.startswith('input')]
-
         lst_label.sort()
         lst_input.sort()
-
         self.lst_label = lst_label
         self.lst_input = lst_input
 
@@ -208,41 +205,23 @@ class Dataset(torch.utils.data.Dataset):
     def __getitem__(self, index):
         label = np.load(os.path.join(self.data_dir, self.lst_label[index]))
         input = np.load(os.path.join(self.data_dir, self.lst_input[index]))
-
-        # 정규화
         label = label/255.0
         input = input/255.0
-
-        # 이미지와 레이블의 차원 = 2일 경우(채널이 없을 경우, 흑백 이미지), 새로운 채널(축) 생성
         if label.ndim == 3:
             label = label[:, :, : , np.newaxis]
         if input.ndim == 3:
             input = input[:, :, :, np.newaxis]
-
         data = {'input': input, 'label': label}
-
-        #print('In Dataset',data['input'].shape)
-        
-        # transform이 정의되어 있다면 transform을 거친 데이터를 불러옴
         if self.transform:
             data = self.transform(data)
-
         return data
-    
-# 트렌스폼 구현하기
+
 class ToTensor(object):
     def __call__(self, data):
         label, input = data['label'], data['input']
-
-        #label = label.transpose((2, 0, 1)).astype(np.float32).contiguous()
-        #input = input.transpose((2, 0, 1)).astype(np.float32)
-        #print('ToTensor before', input.shape)
         label = label.transpose((3,0,1,2)).astype(np.float32)
         input = input.transpose((3,0,1,2)).astype(np.float32)
-        #print('ToTensor after', input.shape)
-
         data = {'label': torch.from_numpy(label), 'input': torch.from_numpy(input)}
-
         return data
 
 class Normalization(object):
@@ -252,13 +231,9 @@ class Normalization(object):
 
     def __call__(self, data):
         label, input = data['label'], data['input']
-
         input = (input - self.mean) / self.std
-
         data = {'label': label, 'input': input}
-
         return data
-
 
 class FocalTverskyLoss(nn.Module):
     def __init__(self, weight=None, size_average=True):

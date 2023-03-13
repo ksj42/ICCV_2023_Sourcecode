@@ -1,0 +1,8 @@
+opencv-python
+matplotlib==3.5.2
+torchvision==0.14.1
+scipy==1.10.0
+joblib==1.1.0
+threadpoolctl==2.2.0
+natsort==8.2.0
+scikit-learn==1.1.1
